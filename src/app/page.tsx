@@ -3,7 +3,6 @@ import { HeroBanner } from "@/components/home/HeroBanner";
 import { RaffleList } from "@/components/home/RaffleList";
 import { StoriesBar } from "@/components/home/StoriesBar";
 import { WinnersTicker } from "@/components/home/WinnersTicker";
-import { FinishedCampaignCard } from "@/components/rifa/FinishedCampaignCard";
 import { FloatingCTA } from "@/components/layout/FloatingCTA";
 import { getFeatured, winners } from "@/lib/data";
 import { getHeroCarouselRaffles, heroIntroConfig } from "@/lib/hero";
@@ -15,9 +14,6 @@ export default async function HomePage() {
   const featured = getFeatured() ?? raffles[0];
   const heroFavorites = getHeroCarouselRaffles().filter((r) => !isRaffleFinished(r));
   const liveRaffles = raffles.filter((r) => !isRaffleFinished(r));
-  const finishedWithResult = raffles.filter(
-    (r) => isRaffleFinished(r) && r.result != null,
-  );
 
   return (
     <>
@@ -34,9 +30,6 @@ export default async function HomePage() {
           </p>
           <WinnersTicker winners={winners} />
         </div>
-        {finishedWithResult.map((r) => (
-          <FinishedCampaignCard key={r.slug} raffle={r} />
-        ))}
         {liveRaffles.length > 0 ? (
           <StoriesBar raffles={liveRaffles} />
         ) : null}

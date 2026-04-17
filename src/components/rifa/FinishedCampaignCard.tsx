@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { CheckCircle2, Flag, Maximize2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { Raffle } from "@/lib/types";
@@ -8,10 +7,6 @@ import { formatWinnerDisplayName } from "@/lib/winnerDisplay";
 
 function isVideoUrl(url: string) {
   return /\.(mp4|webm|mov)(\?|$)/i.test(url);
-}
-
-function imgUnoptimized(src: string) {
-  return src.startsWith("http") && !src.includes("unsplash.com");
 }
 
 type Props = {
@@ -107,9 +102,10 @@ export function FinishedCampaignCard({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="group relative mx-auto w-full max-w-[200px] shrink-0 overflow-hidden rounded-xl bg-slate-100 outline-none ring-slate-900/10 transition focus-visible:ring-2 sm:mx-0 sm:w-[140px]"
+            className="group relative mx-auto w-full max-w-[min(100%,240px)] shrink-0 overflow-hidden rounded-xl bg-slate-200 outline-none ring-slate-900/10 transition focus-visible:ring-2 sm:mx-0 sm:max-w-[180px] sm:min-w-[160px]"
             aria-label="Expandir mídia do ganhador"
           >
+            {/* AVIF e arquivos locais: <img> evita falhas do otimizador do next/image */}
             <div className="relative aspect-[3/4] w-full">
               {video ? (
                 <video
@@ -120,13 +116,12 @@ export function FinishedCampaignCard({
                   preload="metadata"
                 />
               ) : (
-                <Image
+                <img
                   src={result.mediaUrl}
                   alt=""
-                  fill
-                  className="object-cover"
-                  sizes="200px"
-                  unoptimized={imgUnoptimized(result.mediaUrl)}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               )}
               <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1.5 bg-black/55 py-2 text-xs font-medium text-white backdrop-blur-[2px]">
@@ -167,39 +162,34 @@ export function FinishedCampaignCard({
 
       {extras.length > 0 ? (
         <div className="mt-6">
-          <h3 className="mb-3 px-0.5 font-display text-base font-bold text-slate-900">
+          <h3 className="mb-1.5 px-0.5 text-sm font-semibold text-slate-600">
             Números da sorte
           </h3>
-          <p className="mb-3 px-0.5 text-[13px] leading-relaxed text-slate-600">
+          <p className="mb-3 px-0.5 text-[11px] leading-relaxed text-slate-500">
             Demais cotas contempladas nesta campanha, conforme definido pela
             organização do sorteio.
           </p>
-          <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200/90 bg-white">
+          <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-slate-50/50">
             {extras.map((row) => (
               <li
                 key={`${row.ticketNumber}-${row.prizeLabel}`}
-                className="px-4 py-3.5 text-[14px] leading-relaxed sm:py-3"
+                className="px-4 py-3 sm:py-2.5"
               >
-                <p className="flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
-                  <span className="font-mono text-[15px] font-bold tabular-nums text-slate-900">
-                    {row.ticketNumber}
-                  </span>
-                  <span className="text-slate-300" aria-hidden>
-                    ·
-                  </span>
+                <p className="font-mono text-xl font-bold tabular-nums tracking-tight text-emerald-950 sm:text-lg">
+                  {row.ticketNumber}
+                </p>
+                <p className="mt-1 text-[11px] leading-snug text-slate-500">
                   <span className="font-medium text-slate-600">
                     {row.prizeLabel}
                   </span>
-                  <span className="text-slate-300" aria-hidden>
-                    —
+                  <span className="mx-1.5 text-slate-300" aria-hidden>
+                    ·
                   </span>
-                  <span className="text-slate-900">
-                    {formatWinnerDisplayName(row.winnerFullName)}
-                  </span>
-                  <span className="text-slate-300" aria-hidden>
+                  <span>{formatWinnerDisplayName(row.winnerFullName)}</span>
+                  <span className="mx-1.5 text-slate-300" aria-hidden>
                     |
                   </span>
-                  <span className="font-bold tabular-nums text-emerald-800">
+                  <span className="font-medium tabular-nums text-slate-600">
                     {row.state}
                   </span>
                 </p>
@@ -239,17 +229,11 @@ export function FinishedCampaignCard({
                 autoPlay
               />
             ) : (
-              <div className="relative mx-auto h-[min(90dvh,880px)] w-full max-w-3xl">
-                <Image
-                  src={result.mediaUrl}
-                  alt="Ganhador"
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 768px) 100vw, 48rem"
-                  unoptimized={imgUnoptimized(result.mediaUrl)}
-                  priority
-                />
-              </div>
+              <img
+                src={result.mediaUrl}
+                alt="Ganhador"
+                className="mx-auto max-h-[min(90dvh,880px)] w-full max-w-3xl object-contain"
+              />
             )}
           </div>
         </div>
